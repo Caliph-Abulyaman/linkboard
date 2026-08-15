@@ -4,11 +4,15 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const pool = require('./db');
 const authRoutes = require('./auth');
+const linksRoutes = require('./links');
+const tagsRoutes = require('./tags');
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use('/auth', authRoutes);
+app.use('/links', linksRoutes);
+app.use('/tags', tagsRoutes);
 
 app.get('/health', async (req, res) => {
     try {
