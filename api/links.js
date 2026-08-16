@@ -1,6 +1,7 @@
 const express = require('express');
 const pool = require('./db');
 const requireAuth = require('./middleware/requireAuth');
+const linkEnrichmentQueue = require('./queue');
 
 const router = express.Router();
 
@@ -15,7 +16,11 @@ router.post('/', requireAuth, async (req, res) => {
         [url, req.userId]
     );
 
-    res.status(201).json(result.rows[0]);
+    const link = result.rows[0];
+
+    await linkEnrichmentQueue.add('enrich-link', { linkId: link.id, url: link.url });
+
+    res.status(201).json(link);
 });
 
 router.get('/', async (req, res) => {
