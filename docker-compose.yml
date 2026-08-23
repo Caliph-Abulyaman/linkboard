@@ -1,0 +1,48 @@
+services:
+  api:
+    build: ./api
+    image: linkboard-api:v1.0.0
+    ports:
+      - "4000:4000"
+    env_file:
+      - ./api/.env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  worker:
+    build: ./worker
+    image: linkboard-worker:v1.0.0
+    env_file:
+      - ./worker/.env.docker
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+  frontend:
+    build: ./frontend
+    image: linkboard-frontend:v1.0.1
+    ports:
+      - "3000:3000"
+
+  postgres:
+    image: postgres:18
+    env_file:
+      - ./db/.env.docker
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U linkboard" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:8
+
+volumes:
+  postgres-data:
