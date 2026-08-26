@@ -2,7 +2,7 @@ import LoginForm from "./LoginForm";
 import AddLinkForm from "./AddLinkForm";
 
 async function getLinks() {
-  const res = await fetch('http://localhost:4000/links', { cache: 'no-store' });
+  const res = await fetch('http://api:4000/links', { cache: 'no-store' });
   if (!res.ok) {
     throw new Error('failed to fetch links');
   }

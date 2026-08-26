@@ -1,8 +1,10 @@
 require('dotenv').config();
 
 const { Worker } = require('bullmq');
+const Redis = require('ioredis');
 const cheerio = require('cheerio');
 const pool = require('./db');
+const fs = require('fs');
 
 require('dns').setDefaultResultOrder('ipv4first');
 
@@ -39,6 +41,9 @@ const worker = new Worker(
     { connection }
 );
 
+// Direct Redis connection for health checks
+const healthRedis = new Redis(connection);
+
 worker.on('completed', (job) => {
     console.log(`job ${job.id} completed`);
 });
@@ -47,5 +52,19 @@ worker.on('failed', (job, err) => {
     console.error(`job ${job.id} failed:`, err.message);
     console.error('cause:', err.cause);
 });
+
+setInterval(async () => {
+    try {
+        const clientStatus = healthRedis.status;
+        const health = {
+            status: clientStatus,
+            timeStamp: new Date().toISOString(),
+        };
+
+        fs.writeFileSync('/tmp/health.json', JSON.stringify(health), 'utf-8');
+    } catch (err) {
+        console.error('Error writing health.json:', err.message);
+    }
+}, 10000);
 
 console.log('worker started, waiting for jobs...');
