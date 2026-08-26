@@ -20,3 +20,6 @@ npm-debug.log*
 
 # Editor
 .vscode/cookies.txt
+
+# Secret files
+secrets/*cookies.txt
