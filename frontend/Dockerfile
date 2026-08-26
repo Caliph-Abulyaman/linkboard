@@ -10,5 +10,6 @@ WORKDIR /frontend
 COPY --from=builder /frontend/.next/standalone ./
 COPY --from=builder /frontend/.next/static ./.next/static
 COPY --from=builder /frontend/public/ ./public/
+COPY --from=builder /frontend/healthcheck.js ./
 USER node
 CMD [ "node", "server.js" ]
