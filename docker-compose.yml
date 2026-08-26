@@ -17,6 +17,8 @@ services:
       timeout: 3s
       retries: 5
       start_period: 5s
+    mem_limit: 256m
+    cpus: 0.5
 
   worker:
     build: ./worker
@@ -34,6 +36,8 @@ services:
       timeout: 3s
       retries: 5
       start_period: 20s
+    mem_limit: 256m
+    cpus: 0.75
   frontend:
     build: ./frontend
     image: linkboard-frontend:v1.0.1
@@ -47,6 +51,8 @@ services:
       timeout: 3s
       retries: 5
       start_period: 5s
+    mem_limit: 256m
+    cpus: 0.5
 
   postgres:
     image: postgres:18
@@ -60,6 +66,9 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+      start_period: 5s
+    mem_limit: 512m
+    cpus: 0.5
 
   redis:
     image: redis:8
@@ -69,6 +78,8 @@ services:
       timeout: 3s
       retries: 5
       start_period: 5s
+    mem_limit: 128m
+    cpus: 0.5
 
 volumes:
   postgres-data:
