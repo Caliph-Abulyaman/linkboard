@@ -22,4 +22,7 @@ npm-debug.log*
 .vscode/cookies.txt
 
 # Secret files
-secrets/*cookies.txt
+secrets/
+
+# Session/auth tokens
+cookies.txt
