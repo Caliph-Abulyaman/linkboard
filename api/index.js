@@ -25,6 +25,7 @@ app.get('/health', async (req, res) => {
         await pool.query('SELECT 1');
         res.status(200).json({ status: 'ok', db: 'connected' });
     } catch (err) {
+        console.error('DB health check failed:', err.message);
         res.status(503).json({ status: 'error', db: 'unreachable' });
     }
 });
