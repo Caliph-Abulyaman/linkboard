@@ -35,6 +35,9 @@ jobs:
           POSTGRES_DB=linkboard
           EOF
 
+          mkdir -p secrets
+          echo -n "${{ secrets.POSTGRES_PASSWORD }}" > secrets/postgres_password.txt
+
       - name: Build images
         run: docker compose build
 
