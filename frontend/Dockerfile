@@ -1,7 +1,7 @@
 FROM node:22.11-bookworm-slim AS builder
 WORKDIR /frontend
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm npm ci
 COPY . .
 RUN npm run build
 
