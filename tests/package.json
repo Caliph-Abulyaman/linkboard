@@ -1,0 +1,9 @@
+{
+    "name": "linkboard-integration-tests",
+    "version": "1.0.0",
+    "private": true,
+    "description": "End-to-end integration tests run against the live Compose stack",
+    "scripts": {
+        "test": "node --test"
+    }
+}
