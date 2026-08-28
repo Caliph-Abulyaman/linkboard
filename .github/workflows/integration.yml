@@ -80,9 +80,11 @@ jobs:
         working-directory: ./tests
         run: npm test
 
-      - name: Show logs on failure
-        if: failure()
-        run: docker compose logs
+      - name: Debug — api health endpoint and logs
+        if: always()
+        run: |
+          curl -v http://localhost:4000/health || true
+          docker compose logs api
 
       - name: Tear down
         if: always()
