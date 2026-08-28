@@ -49,9 +49,6 @@ jobs:
       - name: Start the stack
         run: docker compose up -d
 
-      - name: Debug — show actual container names
-        run: docker compose ps --format "{{.Name}}"
-
       - name: Wait for all services to be healthy
         run: |
           timeout=120
@@ -95,15 +92,14 @@ jobs:
           echo "Timed out waiting for services to become healthy"
           docker compose ps
           exit 1
+
       - name: Run integration tests
         working-directory: ./tests
         run: npm test
 
-      - name: Debug — api health endpoint and logs
-        if: always()
-        run: |
-          curl -v http://localhost:4000/health || true
-          docker compose logs api
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
 
       - name: Tear down
         if: always()
