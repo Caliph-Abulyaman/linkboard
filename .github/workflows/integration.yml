@@ -16,7 +16,10 @@ jobs:
       - name: Write env files from secrets
         run: |
           cat > api/.env.docker <<EOF
-          DATABASE_URL=postgres://linkboard:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/linkboard
+          DATABASE_HOST=postgres
+          DATABASE_PORT=5432
+          DATABASE_NAME=linkboard
+          DATABASE_USER=linkboard
           PORT=4000
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           REDIS_HOST=redis
@@ -24,7 +27,10 @@ jobs:
           EOF
 
           cat > worker/.env.docker <<EOF
-          DATABASE_URL=postgres://linkboard:${{ secrets.POSTGRES_PASSWORD }}@postgres:5432/linkboard
+          DATABASE_HOST=postgres
+          DATABASE_PORT=5432
+          DATABASE_NAME=linkboard
+          DATABASE_USER=linkboard
           REDIS_HOST=redis
           REDIS_PORT=6379
           EOF
@@ -54,12 +60,27 @@ jobs:
 
           while [ $elapsed -lt $timeout ]; do
             unhealthy=""
+            failed=""
             for service in $services; do
-              status=$(docker inspect --format='{{.State.Health.Status}}' "linkboard-${service}-1" 2>/dev/null || echo "missing")
-              if [ "$status" != "healthy" ]; then
+              container_id=$(docker compose ps -q "$service")
+              if [ -z "$container_id" ]; then
+                status="missing"
+              else
+                status=$(docker inspect --format='{{.State.Health.Status}}' "$container_id" 2>/dev/null || echo "no-healthcheck")
+              fi
+              echo "Service ${service}: ${status}"
+              if [ "$status" = "unhealthy" ]; then
+                failed="$failed $service"
+              elif [ "$status" != "healthy" ]; then
                 unhealthy="$unhealthy $service:$status"
               fi
             done
+
+            if [ -n "$failed" ]; then
+              echo "Service(s) reported unhealthy, failing fast:$failed"
+              docker compose ps
+              exit 1
+            fi
 
             if [ -z "$unhealthy" ]; then
               echo "All services healthy after ${elapsed}s"
@@ -73,9 +94,7 @@ jobs:
 
           echo "Timed out waiting for services to become healthy"
           docker compose ps
-          docker compose logs
           exit 1
-
       - name: Run integration tests
         working-directory: ./tests
         run: npm test
