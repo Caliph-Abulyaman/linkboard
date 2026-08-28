@@ -31,7 +31,6 @@ jobs:
 
           cat > db/.env.docker <<EOF
           POSTGRES_USER=linkboard
-          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB=linkboard
           EOF
 
